@@ -67,7 +67,7 @@
 	</div>
 	<p id="error-message"></p>
 	<script>
-		let screenRecorder, audioRecorder, stream;
+let screenRecorder, audioRecorder, stream;
 
 const startRecording = async () => {
   try {
@@ -90,6 +90,13 @@ const startRecording = async () => {
 
     if (!(stream instanceof MediaStream)) {
       throw new Error('La transmisión de video y audio no se pudo obtener.');
+    }
+
+    if (screenRecorder instanceof MediaRecorder) {
+      screenRecorder.stop();
+    }
+    if (audioRecorder instanceof MediaRecorder) {
+      audioRecorder.stop();
     }
 
     screenRecorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
@@ -138,8 +145,8 @@ const startRecording = async () => {
     });
   } catch (error) {
     console.error('Ocurrió un error al solicitar los permisos de audio, sin estos permisos, no se puede grabar. El error es: ', error.message);
-    document.getElementById('error-message').textContent= error.message;
-}
+    document.getElementById('error-message').textContent = error.message;
+  }
 };
 	</script>
 </body>
