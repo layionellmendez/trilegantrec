@@ -68,10 +68,27 @@
 	<p id="error-message"></p>
 	<script>
 		let screenRecorder, audioRecorder, stream;
+
 const startRecording = async () => {
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    if (!stream || !(stream instanceof MediaStream)) {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoDevices = devices.filter(device => device.kind === 'videoinput');
+    const audioDevices = devices.filter(device => device.kind === 'audioinput');
+
+    if (videoDevices.length === 0 || audioDevices.length === 0) {
+      throw new Error('No se encontraron dispositivos de video o audio disponibles.');
+    }
+
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        deviceId: videoDevices[0].deviceId,
+      },
+      audio: {
+        deviceId: audioDevices[0].deviceId,
+      },
+    });
+
+    if (!(stream instanceof MediaStream)) {
       throw new Error('La transmisión de video y audio no se pudo obtener.');
     }
 
@@ -121,18 +138,7 @@ const startRecording = async () => {
     });
   } catch (error) {
     console.error('Ocurrió un error al solicitar los permisos de audio, sin estos permisos, no se puede grabar. El error es: ', error.message);
-    document.getElementById('error-message').textContent = "Ocurrió un error al solicitar los permisos de audio, sin estos permisos, no se puede grabar. El error es: " + error.message + " Recargué la página y acepte los permisos, si el error persiste, contacte con el programador: layionellmendez@gmail.com";
-    document.getElementById('start').disabled = true;
-    document.getElementById('stop').disabled = true;
-  }
-};
-
-const stopRecording = () => {
-if (screenRecorder && screenRecorder.state !== 'inactive') {
-screenRecorder.stop();
-}
-if (audioRecorder && audioRecorder.state !== 'inactive') {
-audioRecorder.stop();
+    document.getElementById('error-message').textContent= error.message;
 }
 };
 	</script>
